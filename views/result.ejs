@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Results</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body>
+  <div class="container">
+    <h1>📊 Quiz Summary</h1>
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Question</th>
+          <th>Your Answer</th>
+          <th>Correct</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% answers.forEach((ans, i) => { %>
+          <tr>
+            <td><%= i + 1 %></td>
+            <td><%= ans.table %> × <%= ans.multiplier %></td>
+            <td><%= ans.userAnswer %></td>
+            <td><%= ans.correctAnswer %></td>
+            <td class="<%= ans.userAnswer === ans.correctAnswer ? 'correct' : (ans.userAnswer === 'Not Answered' ? 'not-answered' : 'wrong') %>">
+            <%= ans.userAnswer === ans.correctAnswer ? '✔' : (ans.userAnswer === 'Not Answered' ? '—' : '✘') %>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+    <a href="/">Try Again</a>
+  </div>
+  <div class="charts">
+    <canvas id="accuracyChart" width="400" height="400"></canvas>
+    <canvas id="speedChart" width="400" height="400"></canvas>
+  </div>
+  
+  <script>
+    const answers = `<%- JSON.stringify(answers) %>`;
+    const correct = answers.filter(a => a.userAnswer === a.correctAnswer).length;
+    const wrong = answers.filter(a => a.userAnswer !== a.correctAnswer && a.userAnswer !== 'Not Answered').length;
+    const skipped = answers.filter(a => a.userAnswer === 'Not Answered').length;
+  
+    new Chart(document.getElementById('accuracyChart'), {
+      type: 'pie',
+      data: {
+        labels: ['Correct', 'Wrong', 'Skipped'],
+        datasets: [{
+          data: [correct, wrong, skipped],
+          backgroundColor: ['#4CAF50', '#f44336', '#ff9800']
+        }]
+      },
+      options: {
+        responsive: false,
+        plugins: {
+          title: { display: true, text: 'Accuracy Report' }
+        }
+      }
+    });
+  
+    const timeTaken = answers.map(a => a.timeTaken || 0); // assume you add this later
+    const avgTime = timeTaken.length ? (timeTaken.reduce((a, b) => a + b, 0) / timeTaken.length).toFixed(2) : 0;
+  
+    new Chart(document.getElementById('speedChart'), {
+      type: 'bar',
+      data: {
+        labels: answers.map((_, i) => `Q${i+1}`),
+        datasets: [{
+          label: 'Time Taken (sec)',
+          data: timeTaken,
+          backgroundColor: '#2196F3'
+        }]
+      },
+      options: {
+        responsive: false,
+        plugins: {
+          title: { display: true, text: 'Speed Per Question' }
+        },
+        scales: {
+          y: { beginAtZero: true }
+        }
+      }
+    });
+  </script>
+  
+</body>
+</html>

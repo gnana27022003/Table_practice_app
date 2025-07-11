@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Question <%= index %></title>
+  <link rel="stylesheet" href="/css/styles.css" />
+  <style>
+    /* Animated gradient background */
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
+      background: linear-gradient(-45deg, #89f7fe, #66a6ff, #89f7fe, #66a6ff);
+      background-size: 400% 400%;
+      animation: gradientBG 15s ease infinite;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      color: #2c3e50;
+    }
+    @keyframes gradientBG {
+      0% {background-position: 0% 50%;}
+      50% {background-position: 100% 50%;}
+      100% {background-position: 0% 50%;}
+    }
+
+    /* Floating particle effect behind flashcard */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.15), transparent 40%),
+                  radial-gradient(circle at 70% 70%, rgba(255,255,255,0.1), transparent 30%);
+      animation: floatParticles 20s linear infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+    @keyframes floatParticles {
+      0% {transform: translate(0, 0);}
+      100% {transform: translate(50px, 50px);}
+    }
+
+    .flashcard {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 25px;
+      padding: 50px 80px;
+      max-width: 600px;
+      box-shadow: 0 15px 30px rgba(33, 150, 243, 0.3), 0 0 20px rgba(33, 150, 243, 0.2);
+      position: relative;
+      z-index: 1;
+      animation: bounceIn 0.6s ease;
+      user-select: none;
+    }
+
+    .question-number {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #2980b9;
+    }
+
+    .question {
+      font-size: 3rem;
+      font-weight: 700;
+      margin-bottom: 40px;
+      color: #34495e;
+    }
+
+    .answer-input {
+      font-size: 1.6rem;
+      padding: 15px;
+      width: 90%;
+      border-radius: 12px;
+      border: 2px solid #2980b9;
+      margin-bottom: 30px;
+      box-shadow: 0 0 12px rgba(41, 128, 185, 0.4);
+      transition: border-color 0.3s ease;
+    }
+    .answer-input:focus {
+      border-color: #1abc9c;
+      outline: none;
+      box-shadow: 0 0 15px #1abc9c;
+    }
+
+    .submit-btn, .stop-btn {
+      font-size: 1.3rem;
+      padding: 15px 30px;
+      border: none;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      margin: 0 10px;
+      min-width: 120px;
+      box-shadow: 0 5px 15px rgba(33, 150, 243, 0.3);
+      font-weight: 600;
+      user-select: none;
+    }
+
+    .submit-btn {
+      background-color: #27ae60;
+      color: white;
+    }
+    .submit-btn:hover {
+      background-color: #219150;
+      box-shadow: 0 5px 20px #27ae60;
+    }
+
+    .stop-btn {
+      background-color: #e74c3c;
+      color: white;
+    }
+    .stop-btn:hover {
+      background-color: #c0392b;
+      box-shadow: 0 5px 20px #e74c3c;
+    }
+
+    .timer {
+      font-size: 1.3rem;
+      color: #e74c3c;
+      margin-top: 10px;
+      font-weight: 700;
+    }
+
+    @keyframes bounceIn {
+      0% {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+      60% {
+        transform: scale(1.05);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+      }
+      100% {
+        transform: scale(1.1);
+      }
+    }
+  </style>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const timeLimit = `<%= q.timeLimit %>`;
+      let timeLeft = timeLimit;
+      const timerEl = document.querySelector('.timer');
+      const formEl = document.querySelector('form');
+      const stopBtn = document.querySelector('.stop-btn');
+
+      let countdown = setInterval(() => {
+        timeLeft--;
+
+        if (timeLeft >= 0) {
+          timerEl.textContent = `⏳ Time left: ${timeLeft} second${timeLeft !== 1 ? 's' : ''}`;
+
+          if (timeLeft <= 5) {
+            timerEl.style.color = '#e74c3c';
+            timerEl.style.fontWeight = 'bold';
+            timerEl.style.animation = 'pulse 1s infinite alternate';
+          }
+        }
+
+        if (timeLeft <= 0) {
+          clearInterval(countdown);
+          formEl.submit();
+        }
+      }, 1000);
+
+      // Stop button handler
+      stopBtn.addEventListener('click', () => {
+        clearInterval(countdown);
+        alert('Quiz stopped!');
+        // You can redirect or do anything here
+        // Example: window.location.href = '/';
+      });
+    });
+  </script>
+</head>
+
+<body>
+  <div class="flashcard">
+    <div class="question-number">Question <%= index %> of 15</div>
+    <div class="question"><%= q.table %> × <%= q.multiplier %> = ?</div>
+
+    <form action="/quiz" method="POST">
+      <input
+        type="number"
+        name="answer"
+        placeholder="Enter your answer..."
+        class="answer-input"
+        autofocus
+        autocomplete="off"
+      />
+      <div style="display: flex; justify-content: center; gap: 15px; margin-bottom: 20px;">
+        <button type="submit" class="submit-btn">Submit</button>
+        <button type="button" class="stop-btn">Stop Quiz</button>
+      </div>
+    </form>
+
+    <div class="timer">⏳ Time left: <%= q.timeLimit %> seconds</div>
+  </div>
+</body>
+</html>

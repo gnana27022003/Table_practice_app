@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Multiplication Trainer</title>
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>🧠 Multiplication Trainer</h1>
+    <form action="/start" method="POST">
+      <label>Select Tables (comma-separated, or ranges like 10-15):</label>
+      <input type="text" name="tables" placeholder="e.g. 2,3,5 or 10-15" required />
+      
+      <label>Time limit per question (seconds):</label>
+      <select name="timer">
+        <option value="5">5s</option>
+        <option value="7">7s</option>
+        <option value="10">10s</option>
+      </select>
+
+      <label>Total Questions:</label>
+      <input type="number" name="total" min="5" max="50" value="15" />
+
+      <button type="submit">Start Quiz</button>
+    </form>
+  </div>
+</body>
+</html>
