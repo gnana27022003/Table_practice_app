@@ -14,7 +14,6 @@ Project Structure:
 
 // ================= app.js =================
 const express = require('express');
-const a = require('os');
 const path = require('path');
 const app = express();
 const PORT = 3004;
